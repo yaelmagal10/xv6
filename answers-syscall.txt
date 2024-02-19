@@ -1,0 +1,5 @@
+usertrap
+0x7
+0x22
+the thing we chaing
+\000\000\000\000\000\000\000\000
