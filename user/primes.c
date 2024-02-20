@@ -4,18 +4,18 @@
 
 
 void prime(int p1[2]){
-    int num=0;
-    int first_num=0;
+    int num = 0;
+    int first_num = 0;
 
     wait(0);
     sleep(1);
 
-    read( p1[0],&num, 4);
-    if (num==0){
+    read( p1[0], &num, 4);
+    if (num == 0){
         exit(0);
     }
 
-    first_num=num;
+    first_num = num;
     printf("prime %d\n", first_num);
     sleep(1);
     int p2[2];
@@ -25,14 +25,19 @@ void prime(int p1[2]){
     
     if (pid > 0){
         close(p2[0]);
-        while (num!=0){
-            read( p1[0],&num, 4);
-            if (num%first_num!=0){
+
+        while (num!=0)
+	{
+            read( p1[0], &num, 4);
+
+            if (num%first_num != 0){
                 sleep(1);
-                write(p2[1],&num,4);
+                write(p2[1], &num, 4);
             }
             sleep(1);
+
         }
+
         close(p2[1]);
         close(p1[0]);
         close(p1[1]);
@@ -40,8 +45,8 @@ void prime(int p1[2]){
         sleep(1);
         close(p1[1]);
         prime(p2);
+
         close(p1[0]);
-        
         exit(0);
     }
     
@@ -51,11 +56,11 @@ void prime(int p1[2]){
 int main(){
     int p[2];
     pipe(p);
-    int pid= fork();
+    int pid = fork();
     if(pid > 0) {
         close(p[0]);
-        for(int i=2;i<=35;i++){
-            write(p[1],&i,4);
+        for(int i = 2 ; i <= 35 ; i++){
+            write(p[1], &i, 4);
             sleep(2);
         }
         close(p[1]);

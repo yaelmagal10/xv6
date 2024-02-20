@@ -5,12 +5,11 @@
 
 int main(){
     int p[2];
-    char * buf= "";
+    char * buf = "";
     pipe(p);
     int pid= fork();
     if(pid == 0) {
-        read( p[0],buf, 1);
-
+        read( p[0], buf, 1);
         printf("%d: received ping\n",getpid());
         
         close(p[0]);
@@ -19,13 +18,12 @@ int main(){
         close(p[1]);
     } else {
         close(p[0]);
-
         write(p[1],"1",1);
 
         wait(0);
-        read( p[0],buf, 1);
+        read( p[0], buf, 1);
 
-        printf("%d: received pong\n",getpid());
+        printf("%d: received pong\n", getpid());
 
         close(p[0]);
         close(p[1]);
