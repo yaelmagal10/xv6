@@ -85,11 +85,11 @@ uint64 free_memory(void){
   struct run *r;
   acquire(&kmem.lock);
   r = kmem.freelist;
-  int i=0;
-  for (;r;i++){
-    r=r->next;
+  int i = 0;
+  for (; r ; i++){
+    r = r->next;
   }
   release(&kmem.lock);
-  return 4096*i;
+  return 4096 * i;
 }
 

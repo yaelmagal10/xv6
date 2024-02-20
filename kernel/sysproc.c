@@ -97,18 +97,18 @@ sys_uptime(void)
 uint64 sys_trace(void)
 {
   struct proc *p = myproc();
-  argint(0,&p->mask);
+  argint(0, &p->mask);
   return 0;
 }
 
 uint64 sys_sysinfo(void){
   struct proc *p = myproc();
   struct sysinfo frees;
-  frees.freemem=free_memory();
-  frees.nproc=unused_state();
-  uint64 addr=0;
-  argaddr(0,&addr);
-  if (copyout(p->pagetable, addr, (char *)&frees, sizeof(frees))<0)
+  frees.freemem = free_memory();
+  frees.nproc = unused_state();
+  uint64 addr = 0;
+  argaddr(0, &addr);
+  if (copyout(p->pagetable, addr, (char *)&frees, sizeof(frees)) < 0)
           return -1;
   return 0;
 }
