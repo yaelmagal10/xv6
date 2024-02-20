@@ -1,21 +1,28 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
+
+
 void prime(int p1[2]){
     int num=0;
     int first_num=0;
+
     wait(0);
     sleep(1);
+
     read( p1[0],&num, 4);
     if (num==0){
         exit(0);
     }
+
     first_num=num;
     printf("prime %d\n", first_num);
     sleep(1);
     int p2[2];
+
     pipe(p2);
     int pid=fork();
+    
     if (pid > 0){
         close(p2[0]);
         while (num!=0){

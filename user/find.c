@@ -4,6 +4,7 @@
 #include "kernel/fs.h"
 #include "kernel/fcntl.h"
 
+
 char* fmtname(char *path)
 {
   static char buf[DIRSIZ+1];
