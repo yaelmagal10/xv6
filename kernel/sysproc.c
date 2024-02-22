@@ -74,7 +74,14 @@ sys_sleep(void)
 int
 sys_pgaccess(void)
 {
-  // lab pgtbl: your code here.
+  int sum_pages=0;
+  uint64 pages=0;
+  uint64 user_adder=0;
+  argaddr(0, &pages);
+  argint(1, &sum_pages);
+  argaddr(2, &user_adder);
+  uint64 bits=pgaccess_do(myproc()->pagetable,pages,sum_pages);
+  copyout(myproc()->pagetable, user_adder, (char *)(&bits), sizeof(bits));
   return 0;
 }
 #endif

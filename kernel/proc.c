@@ -124,14 +124,14 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-
-  // Allocate a trapframe page.
+  p->fast_sycall=(struct usyscall *)kalloc();
+  p->fast_sycall->pid=p->pid;
+  // Allocate a  page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
     release(&p->lock);
     return 0;
   }
-
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -139,7 +139,6 @@ found:
     release(&p->lock);
     return 0;
   }
-
   // Set up new context to start executing at forkret,
   // which returns to user space.
   memset(&p->context, 0, sizeof(p->context));
@@ -161,6 +160,7 @@ freeproc(struct proc *p)
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
   p->pagetable = 0;
+  p->fast_sycall = 0;
   p->sz = 0;
   p->pid = 0;
   p->parent = 0;
@@ -201,6 +201,13 @@ proc_pagetable(struct proc *p)
     uvmfree(pagetable, 0);
     return 0;
   }
+  if(mappages(pagetable, USYSCALL, PGSIZE,
+              (uint64)(p->fast_sycall), PTE_R | PTE_U) < 0){           
+    uvmunmap(pagetable, TRAMPOLINE, 1, 0);
+    uvmunmap(pagetable, TRAPFRAME, 1, 0);
+    uvmfree(pagetable, 0);
+    return 0;
+  }
 
   return pagetable;
 }
@@ -212,6 +219,7 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
+  uvmunmap(pagetable, USYSCALL, 1, 0);
   uvmfree(pagetable, sz);
 }
 
@@ -686,3 +694,5 @@ procdump(void)
     printf("\n");
   }
 }
+
+

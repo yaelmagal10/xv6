@@ -102,6 +102,21 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
   return &pagetable[PX(0, va)];
 }
 
+
+uint64 pgaccess_do(pagetable_t pagetable, uint64 va, int size)
+{
+  unsigned int  bitmask=0;
+  for (int i=0; i<size;i++){
+     pte_t *pte = walk(pagetable, va + i*PGSIZE, 0);
+     if (((*pte) & PTE_A)!=0){
+        bitmask=(1<<i)|bitmask;
+     }
+     *pte = (*pte)&(~PTE_A);
+  }
+  return (uint64) bitmask;
+}
+
+
 // Look up a virtual address, return the physical address,
 // or 0 if not mapped.
 // Can only be used to look up user pages.
@@ -145,7 +160,6 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
 {
   uint64 a, last;
   pte_t *pte;
-
   if((va % PGSIZE) != 0)
     panic("mappages: va not aligned");
 
@@ -170,6 +184,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
   }
   return 0;
 }
+
 
 // Remove npages of mappings starting from va. va must be
 // page-aligned. The mappings must exist.
@@ -449,3 +464,31 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
     return -1;
   }
 }
+
+
+void vmprint_print(pagetable_t pagetable, int count){
+    for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+      if (pte & PTE_V){
+        for (int j = 0 ; j < count ; j++){
+              printf(" ..");
+        }
+        printf("%d: pte %p pa %p\n", i, pte, PTE2PA(pte));
+        if((pte & (PTE_R|PTE_W|PTE_X)) == 0){
+          uint64 child = PTE2PA(pte);
+          // this PTE points to a lower-level page table.
+          vmprint_print((pagetable_t)child, count+1);
+        }
+      }
+    }
+}
+
+
+void vmprint(pagetable_t pagetable){
+    printf("page table %p\n",pagetable);
+    vmprint_print(pagetable, 1);
+}
+
+
+
+
