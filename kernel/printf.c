@@ -133,3 +133,18 @@ printfinit(void)
   initlock(&pr.lock, "pr");
   pr.locking = 1;
 }
+
+
+void backtrace(){
+  uint64 start = r_fp();
+  uint64 pointer1 = r_fp();
+  uint64 pointer2 = *(uint64 *)(pointer1-16);
+  printf("backtrace:\n");
+  printf("%p\n", *(uint64 *)(pointer1-8));
+  while (PGROUNDDOWN(pointer2)==PGROUNDDOWN(start)){
+      pointer1=pointer2;
+      printf("%p\n", *(uint64 *)(pointer1-8));
+      pointer2 = *(uint64 *)(pointer1-16);
+  }
+
+}
