@@ -108,6 +108,7 @@ uint64 pgaccess_do(pagetable_t pagetable, uint64 va, int size)
   unsigned int  bitmask=0;
   for (int i=0; i<size;i++){
      pte_t *pte = walk(pagetable, va + i*PGSIZE, 0);
+    
      if (((*pte) & PTE_A)!=0){
         bitmask=(1<<i)|bitmask;
      }
