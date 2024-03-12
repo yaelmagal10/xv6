@@ -25,6 +25,16 @@ barrier_init(void)
 static void 
 barrier()
 {
+  pthread_mutex_lock(&bstate.barrier_mutex);
+  bstate.nthread++;
+  if (bstate.nthread==nthread){
+    bstate.nthread=0;
+    bstate.round++;
+    pthread_cond_broadcast(&bstate.barrier_cond);
+  }else{
+    pthread_cond_wait(&bstate.barrier_cond, &bstate.barrier_mutex);
+  }
+  pthread_mutex_unlock(&bstate.barrier_mutex);
   // YOUR CODE HERE
   //
   // Block until all threads have called barrier() and
@@ -38,7 +48,7 @@ thread(void *xa)
 {
   long n = (long) xa;
   long delay;
-  int i;
+  int i; 
 
   for (i = 0; i < 20000; i++) {
     int t = bstate.round;
@@ -46,7 +56,6 @@ thread(void *xa)
     barrier();
     usleep(random() % 100);
   }
-
   return 0;
 }
 
@@ -57,7 +66,6 @@ main(int argc, char *argv[])
   void *value;
   long i;
   double t1, t0;
-
   if (argc < 2) {
     fprintf(stderr, "%s: %s nthread\n", argv[0], argv[0]);
     exit(-1);
